@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>World IVF Day Poster Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+  <style>
+body {
+  background: #fde7ee;
+  font-family: 'Raleway', sans-serif;
+  margin: 0;
+}
+
+.center-card {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 10px;
+}
+
+.logo {
+  width: 110px;
+  height: 38px;
+  margin-bottom: 32px;
+  object-fit: contain;
+}
+
+.form-card {
+  background: #fff;
+  padding: 28px 20px 22px 20px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto 26px auto;
+  box-shadow: 0 4px 16px rgba(100,0,60,0.09);
+}
+
+.form-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #e61e8b;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin: 8px 0 5px 0;
+  color: #333;
+  font-size: 14px;
+}
+
+input[type="text"], input[type="file"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e6d6ee;
+  background: #faf6fb;
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 11px;
+  box-sizing: border-box;
+}
+
+input[type="text"]::placeholder {
+  color: #b29ab3;
+}
+
+.form-btn {
+  margin-top: 12px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  background: linear-gradient(90deg, #ff6fbc 0%, #ff5f5f 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255,111,188,0.12);
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s;
+}
+.form-btn:hover { opacity: 0.94; }
+
+@media (min-width: 600px) {
+  .form-card {
+    max-width: 400px;
+    padding: 34px 32px 26px 32px;
+  }
+}
+@media (min-width: 900px) {
+  .form-card {
+    max-width: 440px;
+    padding: 40px 36px 30px 36px;
+  }
+}
+
+/* Modal Layer */
+#posterModal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.14);
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.modal-white-frame {
+  background: #fff;
+  border-radius: 19px;
+  box-shadow: 0 8px 36px rgba(66,0,46,0.17);
+  max-width: 335px;
+  width: 95vw;
+  padding: 0 0 38px 0;
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+@media (min-width: 600px) {
+  .modal-white-frame {
+    max-width: 400px;
+  }
+}
+@media (min-width: 900px) {
+  .modal-white-frame {
+    max-width: 440px;
+  }
+}
+
+/* Poster background frame: full image visibility */
+.poster-bg-content {
+  width: calc(100% - 28px);
+  aspect-ratio: 3/4;
+  background: url('assests/Generator_Bg.png') center center/contain no-repeat, #fff;
+  border-radius: 13px;
+  margin: 15px 14px 0 14px;
+  box-shadow: 0 2px 8px rgba(66,0,46,0.06);
+  padding: 20px 8px 15px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.close-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #e61e8b;
+  cursor: pointer;
+  z-index: 3;
+  background: #fff;
+  border-radius: 18px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(140,0,80,0.09);
+  border: none;
+}
+
+.poster-hero-imgwrap { margin-top: 2px; margin-bottom: 13px; }
+.poster-hero-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #fde7ee;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+.poster-hero-circle img {
+  width: 100%;
+  height: 100%;
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.poster-kam-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fde7ee;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.poster-kam-circle img {
+  width: 100%;
+  height: 100%;
+  max-width: 80px;
+  max-height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+@media (max-width: 480px) {
+  .poster-hero-circle {
+    width: 68px;
+    height: 68px;
+  }
+  .poster-hero-circle img {
+    max-width: 68px;
+    max-height: 68px;
+  }
+  .poster-kam-circle {
+    width: 54px;
+    height: 54px;
+  }
+  .poster-kam-circle img {
+    max-width: 54px;
+    max-height: 54px;
+  }
+}
+
+.poster-dr-name {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #232021;
+  text-align: center;
+  margin: 10px 0 0 0;
+}
+.poster-head-desc {
+  margin-top: 6px;
+  font-size: 0.956rem;
+  color: #6b4e58;
+  line-height: 1.48;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.poster-tag {
+  font-size: 0.91rem;
+  color: #a07391;
+  text-align: center;
+  margin-bottom: 3px;
+}
+.poster-title-row {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.poster-world {
+  font-size: 1rem;
+  color: #e61e8b;
+  letter-spacing: 0.009em;
+  font-weight: 700;
+  margin-bottom: 0;
+  display: block;
+}
+.poster-ivf-key {
+  margin-top: 6px;
+  display: block;
+  font-size: 1.41rem;
+  font-weight: 800;
+  background: linear-gradient(96deg,#ff6fbc 12%,#ff5f5f 88%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  letter-spacing: 0.02em;
+  line-height: 1.08;
+  text-align: center;
+}
+.poster-title-year {
+  color: #ff43a6;
+  font-family: 'Montserrat', 'Raleway', sans-serif;
+  font-size: 0.91rem;
+  font-weight: 700;
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.poster-thanks {
+  font-size: 0.94rem;
+  color: #a64b82;
+  margin: 8px 0 13px 0;
+  text-align: center;
+}
+.poster-kam-part {
+  margin-top: 7px;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.poster-kam-name {
+  font-size: 13px;
+  color: #452948;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 3px;
+}
+.poster-logo-img {
+  width: 47px;
+  margin: 12px auto 0 auto;
+  display: block;
+}
+.poster-download-btn {
+  margin: 20px auto 38px auto;
+  width: 89%;
+  max-width: 202px;
+  padding: 10px 0;
+  font-size: 0.97rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ff6fbc 0%, #ff5f5f 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255,111,188,0.11);
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s;
+  display: block;
+}
+.poster-download-btn:active,
+.poster-download-btn:hover {
+  opacity: 0.96;
+}
+
+@media (max-width: 410px) {
+  .form-card { max-width: 97vw; padding: 15px 4vw 18px 4vw; }
+  .modal-white-frame { max-width: 99vw; }
+}
+@media (max-width: 370px) {
+  .poster-bg-content { padding: 4vw 2vw 4vw 2vw; }
+}
+
+/* Ensure poster background is always fully visible */
+.poster-bg-content {
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+}
+
+/* Cropper modal overrides */
+#cropModal {
+  display: none;
+  position: fixed;
+  z-index: 3000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.23);
+  justify-content: center;
+  align-items: center;
+}
+#cropModal.active {
+  display: flex;
+}
+#cropModal .cropper-wrapper {
+  background: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  max-width: 95vw;
+  max-height: 85vh;
+  box-sizing: border-box;
+}
+#cropModal img#imageToCrop {
+  max-width: 82vw;
+  max-height: 56vh;
+  display: block;
+  margin: 0 auto;
+}
+#cropModal .crop-btn-group {
+  margin-top: 10px;
+  text-align: right;
+}
+#cropModal button {
+  padding: 5px 20px;
+  margin-left: 7px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: none;
+  background: #e8dff4;
+  color: #d13e91;
+  font-weight: 600;
+  cursor: pointer;
+}
+#cropModal button:hover {
+  background: #ffdaf2;
+}
+
+  </style>
+</head>
+<body>
+  <div class="center-card">
+    <img class="logo" src="assests/Logo.png" alt="Logo"/>
+    <div class="form-card">
+      <div class="form-title">World IVF Day Poster Generator</div>
+      <form id="posterForm" autocomplete="off">
+        <label for="doctorName">Doctor Name</label>
+        <input type="text" id="doctorName" placeholder="Enter Doctor Name" required>
+        <label for="doctorPhoto">Doctor Photo</label>
+        <input type="file" id="doctorPhoto" accept="image/*" required>
+        <label for="kamName">KAM Name</label>
+        <input type="text" id="kamName" placeholder="Enter KAM Name" required>
+        <label for="kamPhoto">KAM Photo</label>
+        <input type="file" id="kamPhoto" accept="image/*" required>
+        <button class="form-btn" type="submit">Generate Poster</button>
+      </form>
+    </div>
+  </div>
+  <!-- MODAL -->
+  <div id="posterModal" class="modal">
+    <div class="modal-white-frame">
+      <button class="close-btn" id="closeModal">&times;</button>
+      <div class="poster-bg-content" id="posterBgContent">
+        <div id="posterPreview"></div>
+      </div>
+      <button class="poster-download-btn" id="downloadPoster">Download Poster</button>
+    </div>
+  </div>
+  <!-- Crop Modal -->
+  <div id="cropModal">
+    <div class="cropper-wrapper">
+      <img id="imageToCrop" alt="Crop" />
+      <div class="crop-btn-group">
+        <button id="cropOkBtn" type="button">Crop</button>
+        <button id="cropCancelBtn" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <!-- html2canvas and cropperjs -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script>
+    // Cropping setup
+    let cropper = null, croppingTarget = null, croppingCallback = null, croppingType = "";
+    let croppedDoctorImage = null, croppedKamImage = null;
+
+    function openCropper({file, done, aspect = 1}) {
+      croppingType = "";
+      croppingCallback = done;
+      document.getElementById('cropModal').classList.add('active');
+      const img = document.getElementById('imageToCrop');
+      img.src = URL.createObjectURL(file);
+      img.onload = function() {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(img, {
+          aspectRatio: aspect,
+          viewMode: 2,
+          dragMode: 'move',
+          movable: true,
+          cropBoxResizable: true,
+        });
+      };
+    }
+    document.getElementById('cropOkBtn').onclick = function() {
+      if (!cropper) return;
+      cropper.getCroppedCanvas().toBlob(blob => {
+        croppingCallback(blob);
+        cropper.destroy();
+        cropper = null;
+        document.getElementById('cropModal').classList.remove('active');
+      }, 'image/png');
+    };
+    document.getElementById('cropCancelBtn').onclick = function() {
+      if (cropper) cropper.destroy();
+      cropper = null;
+      document.getElementById('cropModal').classList.remove('active');
+    };
+
+    document.getElementById('doctorPhoto').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      openCropper({
+        file,
+        done: blob => { croppedDoctorImage = blob; },
+        aspect: 1
+      });
+    });
+    document.getElementById('kamPhoto').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      openCropper({
+        file,
+        done: blob => { croppedKamImage = blob; },
+        aspect: 1
+      });
+    });
+
+    // Poster generation and gradient fix for download
+    const form = document.getElementById('posterForm');
+    const modal = document.getElementById('posterModal');
+    const preview = document.getElementById('posterPreview');
+    const closeBtn = document.getElementById('closeModal');
+    const downloadBtn = document.getElementById('downloadPoster');
+    let posterNode = null;
+
+    // Helper to read cropped blob as DataURL
+    function blobToDataURL(blob, cb) {
+      const reader = new FileReader();
+      reader.onload = () => cb(reader.result);
+      reader.readAsDataURL(blob);
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const doctorName = document.getElementById('doctorName').value.trim() || "Dr. Name";
+      const kamName = document.getElementById('kamName').value.trim() || "KAM Name";
+
+      if (!croppedDoctorImage || !croppedKamImage) {
+        alert('Please upload and crop both photos.');
+        return;
+      }
+
+      blobToDataURL(croppedDoctorImage, doctorImgData => {
+        blobToDataURL(croppedKamImage, kamImgData => {
+          preview.innerHTML = `
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+              <div class="poster-hero-imgwrap">
+                <div class="poster-hero-circle">
+                  <img src="${doctorImgData}" alt="Doctor" />
+                </div>
+              </div>
+              <div class="poster-dr-name">${doctorName}</div>
+              <div class="poster-head-desc">
+                It is time to honour your untiring efforts<br>behind bringing smiles to many...
+              </div>
+              <div class="poster-tag">Wishing you a very happy</div>
+              <div class="poster-title-row">
+                <span class="poster-world">WORLD</span>
+                <span class="poster-ivf-key" id="ivfKeyText">IVF DAY</span>
+              </div>
+              <div class="poster-title-year">2025</div>
+              <div class="poster-thanks">with many thanks</div>
+              <div class="poster-kam-part">
+                <div class="poster-kam-circle">
+                  <img src="${kamImgData}" alt="KAM"/>
+                </div>
+                <div class="poster-kam-name">${kamName}</div>
+              </div>
+              <img class="poster-logo-img" src="assests/Logo.png" alt="Logo"/>
+            </div>
+          `;
+          modal.style.display = "flex";
+          posterNode = document.getElementById('posterBgContent');
+        });
+      });
+    });
+
+    closeBtn.onclick = function() {
+      modal.style.display = "none";
+    };
+    window.onclick = function(e) {
+      if (e.target === modal) modal.style.display = "none";
+    };
+
+    // Download poster (handle IVF gradient issue)
+    downloadBtn.addEventListener('click', function () {
+      if (!posterNode) return;
+      const ivfKey = document.getElementById('ivfKeyText');
+      if (ivfKey) {
+        // Backup
+        const backup = {
+          background: ivfKey.style.background,
+          webkitBackgroundClip: ivfKey.style.webkitBackgroundClip,
+          webkitTextFillColor: ivfKey.style.webkitTextFillColor,
+          color: ivfKey.style.color
+        };
+        // Set solid color for capture
+        ivfKey.style.background = "none";
+        ivfKey.style.webkitBackgroundClip = "border-box";
+        ivfKey.style.webkitTextFillColor = "unset";
+        ivfKey.style.backgroundClip = "border-box";
+        ivfKey.style.color = "#ff349b";
+        html2canvas(posterNode, {backgroundColor: null}).then(canvas => {
+          // Restore
+          ivfKey.style.background = backup.background;
+          ivfKey.style.webkitBackgroundClip = backup.webkitBackgroundClip;
+          ivfKey.style.webkitTextFillColor = backup.webkitTextFillColor;
+          ivfKey.style.color = backup.color;
+          const link = document.createElement('a');
+          link.download = "IVF-Day-Poster.png";
+          link.href = canvas.toDataURL();
+          link.click();
+        });
+      } else {
+        html2canvas(posterNode, {backgroundColor: null}).then(canvas => {
+          const link = document.createElement('a');
+          link.download = "IVF-Day-Poster.png";
+          link.href = canvas.toDataURL();
+          link.click();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
